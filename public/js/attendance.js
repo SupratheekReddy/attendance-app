@@ -1,5 +1,6 @@
 // attendance.js — Handle face verification and marking entry/exit
 (function () {
+  const API_BASE = 'https://theprintshoppe-api.onrender.com';
   // Elements
   const idInputSection = document.getElementById('idInputSection');
   const userIdInput = document.getElementById('userIdInput');
@@ -37,7 +38,7 @@
     showLoading(true, 'Loading facial models...');
     try {
       await FaceSetup.loadModels();
-      const res = await fetch('/api/auth/descriptors');
+      const res = await fetch(`${API_BASE}/api/auth/descriptors`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Access denied. Must be on office WiFi.');
       
@@ -112,7 +113,7 @@
       }
 
       // Match found! Call API to mark attendance
-      const res = await fetch('/api/attendance/mark', {
+      const res = await fetch(`${API_BASE}/api/attendance/mark`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: targetUser.userId })

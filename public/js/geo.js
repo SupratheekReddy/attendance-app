@@ -5,7 +5,8 @@ const GEO = {
   async loadConfig() {
     if (this.config) return this.config;
     try {
-      const res = await fetch('/api/config/geo');
+      const API_BASE = 'https://theprintshoppe-api.onrender.com';
+    const res = await fetch(`${API_BASE}/api/config/geo`);
       this.config = await res.json();
       return this.config;
     } catch {

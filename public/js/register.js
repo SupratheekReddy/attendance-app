@@ -1,5 +1,6 @@
 // register.js — Handle new user registration
 (function () {
+  const API_BASE = 'https://theprintshoppe-api.onrender.com';
   // Elements
   const detailsSection = document.getElementById('detailsSection');
   const cameraSection = document.getElementById('cameraSection');
@@ -66,7 +67,7 @@
 
       if (!detection) throw new Error('No face detected. Try again.');
 
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

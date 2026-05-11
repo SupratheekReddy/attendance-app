@@ -1,5 +1,6 @@
 // admin.js — Multi-view dashboard with drill-down
 (function () {
+  const API_BASE = 'https://theprintshoppe-api.onrender.com';
   // Elements
   const loginView = document.getElementById('loginView');
   const dashboardView = document.getElementById('dashboardView');
@@ -56,7 +57,7 @@
     
     showLoading(true);
     try {
-      const res = await fetch(`/api/auth/users?password=${encodeURIComponent(pass)}`);
+      const res = await fetch(`${API_BASE}/api/auth/users?password=${encodeURIComponent(pass)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       
@@ -96,7 +97,7 @@
 
   async function fetchTodayLogs() {
     try {
-      const res = await fetch(`/api/attendance/today?password=${encodeURIComponent(password)}`);
+      const res = await fetch(`${API_BASE}/api/attendance/today?password=${encodeURIComponent(password)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       
@@ -222,7 +223,7 @@
     
     showLoading(true);
     try {
-      const res = await fetch(`/api/attendance/logs?userId=${user.userId}&password=${encodeURIComponent(password)}`);
+      const res = await fetch(`${API_BASE}/api/attendance/logs?userId=${user.userId}&password=${encodeURIComponent(password)}`);
       const logs = await res.json();
       renderMonthList(logs);
     } catch (err) {
@@ -303,7 +304,7 @@
   window.resetExitTime = async (userId, date) => {
     if (!confirm(`Reset exit time for ${userId} on ${date}?`)) return;
     try {
-      const res = await fetch('/api/attendance/reset-exit', {
+      const res = await fetch(`${API_BASE}/api/attendance/reset-exit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, userId, date })
@@ -317,7 +318,7 @@
   document.getElementById('deleteUserBtn').onclick = async () => {
     if (!confirm(`PERMANENTLY DELETE ${selectedUser.name} and all logs?`)) return;
     try {
-      const res = await fetch(`/api/auth/user/${selectedUser.userId}?password=${encodeURIComponent(password)}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/api/auth/user/${selectedUser.userId}?password=${encodeURIComponent(password)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Delete failed');
       alert('User deleted');
       switchView('users');
