@@ -1,10 +1,9 @@
 const router = require('express').Router();
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
-const ipCheck = require('../middleware/ipCheck');
 
 // Mark attendance (entry or exit)
-router.post('/mark', ipCheck, async (req, res) => {
+router.post('/mark', async (req, res) => {
   try {
     const { userId } = req.body;
     if (!userId) {

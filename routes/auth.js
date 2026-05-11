@@ -1,9 +1,8 @@
-const router = require('express').Router();
 const User = require('../models/User');
-const ipCheck = require('../middleware/ipCheck');
+const router = require('express').Router();
 
 // Register new user with face
-router.post('/register', ipCheck, async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { userId, name, faceDescriptor } = req.body;
 
@@ -25,7 +24,7 @@ router.post('/register', ipCheck, async (req, res) => {
 });
 
 // Get all face descriptors for client-side matching
-router.get('/descriptors', ipCheck, async (req, res) => {
+router.get('/descriptors', async (req, res) => {
   try {
     const users = await User.find({}, 'userId name faceDescriptor');
     res.json(users);
