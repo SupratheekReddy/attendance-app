@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/attendance', require('./routes/attendance'));
 
-// ── Geo config endpoint (so frontend doesn't hardcode values) ──
+// ── Geo config endpoint ──
 app.get('/api/config/geo', (req, res) => {
   res.json({
     lat: parseFloat(process.env.OFFICE_LAT),
@@ -42,9 +42,6 @@ app.get('/api/config/geo', (req, res) => {
     radius: parseInt(process.env.OFFICE_RADIUS_METERS, 10) || 100
   });
 });
-
-// ── Health check — UptimeRobot pings this ─────────────────
-app.get('/ping', (req, res) => res.json({ status: 'alive', timestamp: new Date() }));
 
 // ── Connect DB & Start Server ─────────────────────────────
 const PORT = process.env.PORT || 3000;
