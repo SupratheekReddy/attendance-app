@@ -14,25 +14,11 @@ router.post('/mark', async (req, res) => {
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); 
     const now = new Date();
 
-    let record = await Attendance.findOne({ userId: userId.toUpperCase(), date: today });
+    // Find the LATEST record for this user (regardless of date)
+    let record = await Attendance.findOne({ userId: userId.toUpperCase() }).sort({ entryTime: -1 });
 
-    if (!record) {
-      // First scan of the day = Entry
-      record = new Attendance({
-        userId: userId.toUpperCase(),
-        date: today,
-        entryTime: now
-      });
-      await record.save();
-      return res.json({
-        type: 'entry',
-        time: now,
-        message: 'Entry time recorded!'
-      });
-    }
-
-    if (record.entryTime && !record.exitTime) {
-      // Second scan = Exit
+    // If the latest record exists and has no exitTime, mark this scan as EXIT
+    if (record && record.entryTime && !record.exitTime) {
       record.exitTime = now;
       record.status = 'present';
       await record.save();
@@ -48,12 +34,17 @@ router.post('/mark', async (req, res) => {
       });
     }
 
-    // Already has both entry and exit
+    // Otherwise (no record or already has exitTime), start a NEW ENTRY
+    record = new Attendance({
+      userId: userId.toUpperCase(),
+      date: today,
+      entryTime: now
+    });
+    await record.save();
     return res.json({
-      type: 'already_marked',
-      entryTime: record.entryTime,
-      exitTime: record.exitTime,
-      message: 'Attendance already fully marked for today.'
+      type: 'entry',
+      time: now,
+      message: 'Entry time recorded!'
     });
 
   } catch (err) {

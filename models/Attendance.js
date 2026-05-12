@@ -8,7 +8,7 @@ const AttendanceSchema = new mongoose.Schema({
   status: { type: String, enum: ['present', 'incomplete'], default: 'incomplete' }
 });
 
-// One record per user per day
-AttendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
+// Index for faster queries, but not unique to allow multiple sessions or overnight shifts
+AttendanceSchema.index({ userId: 1, date: 1 });
 
 module.exports = mongoose.model('Attendance', AttendanceSchema);

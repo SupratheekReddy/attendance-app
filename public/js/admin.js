@@ -286,8 +286,9 @@
       const tr = document.createElement('tr');
       const hrs = log.exitTime ? ((new Date(log.exitTime) - new Date(log.entryTime)) / 3600000).toFixed(1) + 'h' : '—';
       tr.innerHTML = `
-        <td class="font-bold text-xs">${log.date}</td>
+        <td class="font-bold text-xs">${new Date(log.entryTime).toLocaleDateString([], {month:'short', day:'numeric'})}</td>
         <td>${formatTime(log.entryTime)}</td>
+        <td class="text-xs">${log.exitTime ? new Date(log.exitTime).toLocaleDateString([], {month:'short', day:'numeric'}) : '—'}</td>
         <td>${formatTime(log.exitTime)}</td>
         <td class="font-black text-primary">${hrs}</td>
         <td>
