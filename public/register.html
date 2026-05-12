@@ -20,6 +20,7 @@
       }
     }
   </script>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-background text-gray-900 min-h-screen flex flex-col font-['Inter']">
   <header class="flex justify-between items-center px-4 h-16 w-full bg-white shadow-sm sticky top-0 z-50">
@@ -69,11 +70,12 @@
           </button>
         </div>
       </div>
-      
-      <div id="statusBar" class="hidden bg-white/80 backdrop-blur-md border border-gray-200 p-4 rounded-2xl flex items-center gap-3">
-        <span id="statusIcon"></span>
-        <span id="statusMsg" class="text-sm font-semibold"></span>
-      </div>
+    </div>
+
+    <!-- Feedback Status Bar -->
+    <div id="statusBar" class="status-bar">
+      <span id="statusIcon" class="material-symbols-outlined">info</span>
+      <span id="statusMsg" class="text-sm font-semibold"></span>
     </div>
   </main>
 

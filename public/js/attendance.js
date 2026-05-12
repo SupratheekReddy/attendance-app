@@ -23,9 +23,18 @@
   let isCameraReady = false;
 
   function showStatus(msg, type) {
+    const icons = {
+      success: 'check_circle',
+      error: 'error',
+      warning: 'warning',
+      info: 'info'
+    };
+    const iconEl = document.getElementById('statusIcon');
+    if (iconEl) iconEl.textContent = icons[type] || 'info';
+
     statusBar.className = 'status-bar show ' + type;
     statusMsg.textContent = msg;
-    setTimeout(() => { statusBar.classList.remove('show'); }, 4000);
+    setTimeout(() => { statusBar.classList.remove('show'); }, 6000);
   }
 
   function showLoading(show, text = 'Initializing...') {
@@ -56,30 +65,36 @@
   }
 
   // 2. Step 1: Validate ID
-  startAuthBtn.onclick = () => {
+  startAuthBtn.onclick = async () => {
     const id = userIdInput.value.trim().toUpperCase();
     if (!id) return showStatus('Please enter your Employee ID', 'warning');
 
     targetUser = registeredUsers.find(u => u.userId === id);
     if (!targetUser) return showStatus(`Employee ID "${id}" not found.`, 'error');
 
-    // ID is valid, show camera section
-    idInputSection.style.display = 'none';
-    authSection.style.display = 'block';
-    
-    // Give the browser a split second to render the newly visible video element
-    setTimeout(() => {
-      startCameraFlow();
-    }, 100);
-  };
-
-  async function startCameraFlow() {
     showLoading(true, 'Verifying location...');
     try {
-      // 1. Check Geofence
+      // Check Geofence BEFORE switching views
       const distance = await GEO.check();
       
-      // 2. Start Camera
+      // ID and Location are valid, show camera section
+      idInputSection.style.display = 'none';
+      authSection.style.display = 'block';
+      
+      // Give the browser a split second to render the newly visible video element
+      setTimeout(() => {
+        startCameraFlow(distance);
+      }, 100);
+    } catch (err) {
+      showStatus(err.message, 'error');
+    } finally {
+      showLoading(false);
+    }
+  };
+
+  async function startCameraFlow(distance) {
+    showLoading(true, 'Starting camera...');
+    try {
       await FaceSetup.startCamera();
       isCameraReady = true;
       showStatus(`Location verified: You are ${distance}m from office.`, 'success');
