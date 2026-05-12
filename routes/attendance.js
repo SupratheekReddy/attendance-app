@@ -35,6 +35,20 @@ router.post('/mark', async (req, res) => {
     }
 
     // Otherwise (no record or already has exitTime), start a NEW ENTRY
+    
+    // BUT FIRST: Check for 1-hour cooldown if there was a previous exit
+    if (record && record.exitTime) {
+      const cooldownMs = 60 * 60 * 1000; // 1 hour
+      const timeSinceExit = now - new Date(record.exitTime);
+      
+      if (timeSinceExit < cooldownMs) {
+        const minsRemaining = Math.ceil((cooldownMs - timeSinceExit) / 60000);
+        return res.status(429).json({ 
+          error: `Cooldown active. Please wait ${minsRemaining} minutes before marking a new entry.` 
+        });
+      }
+    }
+
     record = new Attendance({
       userId: userId.toUpperCase(),
       date: today,

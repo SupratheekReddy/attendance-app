@@ -47,8 +47,15 @@ app.get('/api/config/geo', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connected');
+    // Drop the old unique index if it exists to allow multiple shifts per day
+    try {
+      await mongoose.connection.collection('attendances').dropIndex('userId_1_date_1');
+      console.log('✅ Legacy unique index dropped');
+    } catch (e) {
+      // Index might already be gone, which is fine
+    }
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
