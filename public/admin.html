@@ -180,6 +180,20 @@
           </div>
         </div>
 
+        <div class="tonal-card rounded-3xl p-8 border border-gray-100">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black">Attendance Calendar</h2>
+            <div class="flex gap-4 text-[10px] font-bold uppercase tracking-wider">
+              <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-tertiary"></span> Present</div>
+              <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span> Absent</div>
+              <div class="flex items-center gap-1"><span class="text-gray-400 font-black">?</span> Night Shift</div>
+            </div>
+          </div>
+          <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-center">
+            <!-- Calendar days injected here -->
+          </div>
+        </div>
+
         <div class="tonal-card rounded-3xl overflow-hidden border border-gray-100">
           <div class="p-6 border-b border-gray-100">
             <h2 id="selectedMonthName" class="text-xl font-black"></h2>

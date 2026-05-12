@@ -299,6 +299,79 @@
       `;
       daysBody.appendChild(tr);
     });
+    
+    renderCalendar(name, logs);
+  }
+
+  function renderCalendar(monthDisplay, logs) {
+    const calendarGrid = document.getElementById('calendarGrid');
+    if (!calendarGrid) return;
+    calendarGrid.innerHTML = '';
+    
+    // Add day headers
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+      const div = document.createElement('div');
+      div.className = 'text-[10px] font-black text-gray-400 uppercase mb-2';
+      div.textContent = day;
+      calendarGrid.appendChild(div);
+    });
+
+    const [monthName, year] = monthDisplay.split(' ');
+    const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+    const firstDay = new Date(year, monthIndex, 1).getDay();
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+    // Padding for first day of week
+    for (let i = 0; i < firstDay; i++) {
+      calendarGrid.appendChild(document.createElement('div'));
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayLogs = logs.filter(l => l.date === dateStr);
+      
+      // Check if this day is part of a night shift (ended today but started yesterday)
+      const isEndOfNightShift = logs.some(l => {
+        if (!l.exitTime) return false;
+        const exitDate = new Date(l.exitTime).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        return exitDate === dateStr && l.date !== dateStr;
+      });
+
+      // Check if this day's shift is a night shift (starts today but ends tomorrow)
+      const isStartOfNightShift = dayLogs.some(l => {
+        if (!l.exitTime) return false;
+        const entryDate = new Date(l.entryTime).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        const exitDate = new Date(l.exitTime).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        return entryDate === dateStr && exitDate !== dateStr;
+      });
+
+      const dayEl = document.createElement('div');
+      dayEl.className = 'aspect-square flex flex-col items-center justify-center rounded-xl text-xs font-bold relative';
+      
+      const label = document.createElement('span');
+      label.textContent = day;
+      dayEl.appendChild(label);
+
+      if (isStartOfNightShift || isEndOfNightShift) {
+        // Night Shift = Question Mark
+        dayEl.classList.add('bg-gray-50', 'text-gray-400');
+        const qm = document.createElement('span');
+        qm.textContent = '?';
+        qm.className = 'absolute -top-1 -right-1 bg-white shadow-sm rounded-full w-4 h-4 flex items-center justify-center text-[10px] text-gray-400 border border-gray-100';
+        dayEl.appendChild(qm);
+      } else if (dayLogs.length > 0) {
+        // Present = Green Circle
+        dayEl.classList.add('bg-tertiary/10', 'text-tertiary');
+        const dot = document.createElement('span');
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-tertiary mt-0.5';
+        dayEl.appendChild(dot);
+      } else {
+        // Absent = Red Circle (Subtle)
+        dayEl.classList.add('bg-primary/5', 'text-primary/40');
+      }
+
+      calendarGrid.appendChild(dayEl);
+    }
   }
 
   // Global actions
