@@ -39,7 +39,13 @@
 
   function showLoading(show, text = 'Initializing...') {
     loadingText.textContent = text;
-    loadingOverlay.classList.toggle('show', show);
+    if (show) {
+      loadingOverlay.classList.remove('hidden');
+      loadingOverlay.classList.add('flex');
+    } else {
+      loadingOverlay.classList.add('hidden');
+      loadingOverlay.classList.remove('flex');
+    }
   }
 
   // 1. Initial Load: Fetch all descriptors for validation later
@@ -77,32 +83,31 @@
       // Check Geofence BEFORE switching views
       const distance = await GEO.check();
       
+      showLoading(true, 'Starting camera...');
       // ID and Location are valid, show camera section
       idInputSection.style.display = 'none';
       authSection.style.display = 'block';
       
       // Give the browser a split second to render the newly visible video element
-      setTimeout(() => {
-        startCameraFlow(distance);
+      setTimeout(async () => {
+        try {
+          await FaceSetup.startCamera();
+          isCameraReady = true;
+          showStatus(`Location verified: You are ${distance}m from office.`, 'success');
+        } catch (err) {
+          showStatus(err.message, 'error');
+        } finally {
+          showLoading(false);
+        }
       }, 100);
     } catch (err) {
-      showStatus(err.message, 'error');
-    } finally {
       showLoading(false);
+      showStatus(err.message, 'error');
     }
   };
 
   async function startCameraFlow(distance) {
-    showLoading(true, 'Starting camera...');
-    try {
-      await FaceSetup.startCamera();
-      isCameraReady = true;
-      showStatus(`Location verified: You are ${distance}m from office.`, 'success');
-    } catch (err) {
-      showStatus(err.message, 'error');
-    } finally {
-      showLoading(false);
-    }
+    // Deprecated in favor of inline logic in startAuthBtn.onclick
   }
 
   // 3. Step 2: Verification & Marking
@@ -128,6 +133,7 @@
       }
 
       // Match found! Call API to mark attendance
+      showLoading(true, 'Recording shift...');
       const res = await fetch(`${API_BASE}/api/attendance/mark`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,10 +142,10 @@
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
 
-      displayResult(result);
       FaceSetup.stopCamera();
       authSection.style.display = 'none';
       isCameraReady = false;
+      displayResult(result);
     } catch (err) {
       showStatus(err.message, 'error');
     } finally {
@@ -148,14 +154,20 @@
   };
 
   function displayResult(data) {
-    resultCard.style.display = 'block';
-    resultTitle.textContent = data.type === 'entry' ? 'Entry Marked!' : 'Exit Marked!';
-    resultIcon.textContent = data.type === 'entry' ? '👋' : '🏃';
-    resultIcon.className = 'result-icon ' + (data.type === 'entry' ? 'success' : 'info');
+    // Transform resultCard into a full-screen success overlay
+    resultCard.className = 'fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-8 text-center animate-[fadeIn_0.3s_ease-out]';
+    resultCard.style.display = 'flex';
     
-    const timeStr = new Date(data.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    resultTitle.textContent = data.type === 'entry' ? 'Entry Recorded!' : 'Exit Recorded!';
+    resultIcon.textContent = data.type === 'entry' ? '✅' : '👋';
+    resultIcon.className = 'text-8xl mb-6 animate-[bounce_1s_infinite]';
+    
+    const timeStr = new Date(data.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     resultTime.textContent = timeStr;
+    resultTime.className = 'text-6xl font-black text-primary mb-4';
+    
     resultDetail.textContent = data.message;
+    resultDetail.className = 'text-xl font-bold text-gray-500 mb-10 max-w-sm';
   }
 
   init();

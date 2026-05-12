@@ -24,9 +24,13 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     .face-frame {
-      border: 2px solid rgba(184, 0, 73, 0.5);
-      border-radius: 50%;
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+      border: 4px dashed rgba(184, 0, 73, 0.6);
+      border-radius: 2rem;
+      /* Removed the 9999px shadow that was dimming the entire page */
+      background: linear-gradient(to bottom, transparent, rgba(184,0,73,0.05));
+    }
+    #loadingOverlay {
+      transition: all 0.3s ease-in-out;
     }
   </style>
 </head>
