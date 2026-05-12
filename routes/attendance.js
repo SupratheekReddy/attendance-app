@@ -80,7 +80,7 @@ router.get('/today', async (req, res) => {
     }
 
     // Get the 50 most recent logs (for debugging)
-    const logs = await Attendance.find().sort({ entryTime: -1 }).limit(50);
+    const logs = await Attendance.find().sort({ entryTime: -1 }).limit(30);
 
     // Get user names
     const userIds = logs.map(l => l.userId);
