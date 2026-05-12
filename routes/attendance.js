@@ -19,6 +19,18 @@ router.post('/mark', async (req, res) => {
 
     // If the latest record exists and has no exitTime, mark this scan as EXIT
     if (record && record.entryTime && !record.exitTime) {
+      
+      // NEW: 30-minute cooldown after Entry
+      const minShiftMs = 30 * 60 * 1000; // 30 minutes
+      const timeSinceEntry = now - new Date(record.entryTime);
+      
+      if (timeSinceEntry < minShiftMs) {
+        const minsRemaining = Math.ceil((minShiftMs - timeSinceEntry) / 60000);
+        return res.status(429).json({ 
+          error: `Minimum shift duration not met. Please wait ${minsRemaining} minutes before marking exit.` 
+        });
+      }
+
       record.exitTime = now;
       record.status = 'present';
       await record.save();
