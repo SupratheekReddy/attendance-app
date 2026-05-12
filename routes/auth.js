@@ -71,4 +71,65 @@ router.delete('/user/:userId', async (req, res) => {
   }
 });
 
+// Temporary: Seed test data for UI verification
+router.get('/seed', async (req, res) => {
+  try {
+    const userId = 'TEST';
+    const Attendance = require('../models/Attendance');
+    
+    // Cleanup old test data
+    await User.deleteOne({ userId });
+    await Attendance.deleteMany({ userId });
+
+    // 1. Create Test User
+    const testUser = new User({
+      userId,
+      name: 'Test Employee',
+      faceDescriptor: new Array(128).fill(0)
+    });
+    await testUser.save();
+
+    // 2. Create Sample Logs
+    const logs = [
+      {
+        date: '2026-05-01',
+        entryTime: new Date('2026-05-01T10:00:00+05:30'),
+        exitTime: new Date('2026-05-01T18:00:00+05:30'),
+        status: 'present'
+      },
+      {
+        date: '2026-05-03',
+        entryTime: new Date('2026-05-03T22:00:00+05:30'),
+        exitTime: new Date('2026-05-04T06:00:00+05:30'),
+        status: 'present'
+      },
+      {
+        date: '2026-05-05',
+        entryTime: new Date('2026-05-05T09:00:00+05:30'),
+        exitTime: new Date('2026-05-05T17:00:00+05:30'),
+        status: 'present'
+      },
+      {
+        date: '2026-05-06',
+        entryTime: new Date('2026-05-06T23:00:00+05:30'),
+        exitTime: new Date('2026-05-07T08:00:00+05:30'),
+        status: 'present'
+      },
+      {
+        date: '2026-05-08',
+        entryTime: new Date('2026-05-08T10:00:00+05:30'),
+        status: 'incomplete'
+      }
+    ];
+
+    for (const log of logs) {
+      await new Attendance({ userId, ...log }).save();
+    }
+
+    res.json({ success: true, message: 'Test data for "TEST" created! You can now check it in the Admin Panel.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
